@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#050811">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Вступ до фаху · Тест до заліку</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', '"SF Pro Text"', 'Inter', 'system-ui', 'sans-serif']
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    :root {
+      --bg: #050811;
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    html, body {
+      min-height: 100%;
+      background: var(--bg);
+      color: #f5f7fb;
+      -webkit-font-smoothing: antialiased;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Inter, system-ui, sans-serif;
+    }
+
+    /* ---------- Ambient background ---------- */
+    .ambient {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      overflow: hidden;
+      pointer-events: none;
+    }
+    .blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(90px);
+      opacity: 0.5;
+      animation: drift 22s ease-in-out infinite alternate;
+    }
+    .blob-a { width: 60vmax; height: 60vmax; top: -20vmax; left: -18vmax; background: radial-gradient(circle, #1d4ed8 0%, transparent 70%); }
+    .blob-b { width: 55vmax; height: 55vmax; bottom: -22vmax; right: -18vmax; background: radial-gradient(circle, #7c3aed 0%, transparent 70%); animation-delay: -8s; }
+    .blob-c { width: 40vmax; height: 40vmax; top: 40%; left: 30%; background: radial-gradient(circle, #0e7490 0%, transparent 70%); opacity: 0.3; animation-delay: -14s; }
+    @keyframes drift {
+      from { transform: translate3d(0, 0, 0) scale(1); }
+      to   { transform: translate3d(40px, -30px, 0) scale(1.12); }
+    }
+
+    /* ---------- Liquid glass ---------- */
+    .glass {
+      position: relative;
+      background: linear-gradient(145deg, rgba(255,255,255,0.11), rgba(255,255,255,0.03));
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      backdrop-filter: blur(28px) saturate(180%);
+      border-radius: 32px;
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.18),
+        inset 0 -1px 0 rgba(255,255,255,0.04),
+        0 24px 60px -24px rgba(0,0,0,0.7);
+    }
+    .glass::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(160deg, rgba(255,255,255,0.5), rgba(120,160,255,0.08) 40%, rgba(255,255,255,0.02) 65%, rgba(180,140,255,0.4));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    .glass-inner {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 24px;
+    }
+
+    /* ---------- Options ---------- */
+    .opt {
+      width: 100%;
+      min-height: 68px;
+      padding: 1.1rem 1.25rem;
+      border-radius: 22px;
+      text-align: left;
+      font-size: 1.05rem;
+      line-height: 1.4;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      background: rgba(255,255,255,0.05);
+      border: 1px solid rgba(255,255,255,0.1);
+      transition: background-color 0.4s var(--ease), border-color 0.4s var(--ease),
+                  box-shadow 0.4s var(--ease), transform 0.2s var(--ease), opacity 0.4s var(--ease);
+      transform: translateZ(0);
+    }
+    .opt:active:not(:disabled) { transform: scale(0.97); }
+    .opt .letter {
+      flex: 0 0 auto;
+      width: 36px;
+      height: 36px;
+      border-radius: 12px;
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      font-size: 0.9rem;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: all 0.4s var(--ease);
+    }
+    @media (hover: hover) {
+      .opt:hover:not(:disabled) { background: rgba(255,255,255,0.09); border-color: rgba(255,255,255,0.18); }
+    }
+    .opt:disabled { cursor: default; }
+    .opt.is-correct {
+      background: rgba(52,211,153,0.14);
+      border-color: rgba(52,211,153,0.75);
+      box-shadow: 0 0 34px -4px rgba(52,211,153,0.6), inset 0 0 22px rgba(52,211,153,0.14);
+    }
+    .opt.is-correct .letter { background: #34d399; color: #04130d; border-color: transparent; }
+    .opt.is-wrong {
+      background: rgba(248,113,113,0.12);
+      border-color: rgba(248,113,113,0.65);
+      box-shadow: 0 0 30px -6px rgba(248,113,113,0.5), inset 0 0 20px rgba(248,113,113,0.1);
+    }
+    .opt.is-wrong .letter { background: #f87171; color: #1a0606; border-color: transparent; }
+    .opt.is-dim { opacity: 0.4; }
+
+    /* ---------- Progress ---------- */
+    .bar-track {
+      height: 10px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.4);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 0%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #60a5fa, #a78bfa, #f472b6);
+      box-shadow: 0 0 18px rgba(167,139,250,0.7);
+      transition: width 0.7s var(--ease);
+      position: relative;
+    }
+    .bar-fill::after {
+      content: "";
+      position: absolute;
+      top: 0; bottom: 0; right: 0;
+      width: 24px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.6));
+      filter: blur(2px);
+      opacity: 0.7;
+    }
+
+    /* ---------- Buttons ---------- */
+    .btn-primary {
+      width: 100%;
+      min-height: 66px;
+      border-radius: 22px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #fff;
+      background: linear-gradient(135deg, #3b82f6 0%, #7c3aed 100%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.35), 0 16px 40px -12px rgba(99,102,241,0.7);
+      transition: transform 0.2s var(--ease), opacity 0.4s var(--ease), box-shadow 0.4s var(--ease), filter 0.3s var(--ease);
+    }
+    .btn-primary:active:not(:disabled) { transform: scale(0.97); }
+    .btn-primary:disabled { opacity: 0.35; box-shadow: none; cursor: not-allowed; }
+    @media (hover: hover) {
+      .btn-primary:hover:not(:disabled) { filter: brightness(1.1); }
+    }
+
+    /* ---------- Feedback & entrances ---------- */
+    .fade-up { animation: fadeUp 0.55s var(--ease) both; }
+    .fade-in { animation: fadeIn 0.5s var(--ease) both; }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(18px) scale(0.985); }
+      to   { opacity: 1; transform: none; }
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    .expl {
+      transition: opacity 0.5s var(--ease), transform 0.5s var(--ease);
+    }
+    .expl.hidden-state { opacity: 0; transform: translateY(10px); pointer-events: none; }
+
+    /* ---------- Result ring ---------- */
+    .ring {
+      --p: 0;
+      width: 220px;
+      height: 220px;
+      border-radius: 50%;
+      background: conic-gradient(
+        #60a5fa 0%,
+        #a78bfa calc(var(--p) * 0.5%),
+        #f472b6 calc(var(--p) * 1%),
+        rgba(255,255,255,0.08) calc(var(--p) * 1%),
+        rgba(255,255,255,0.08) 100%
+      );
+      box-shadow: 0 0 60px -10px rgba(167,139,250,0.55);
+      display: grid;
+      place-items: center;
+      margin: 0 auto;
+    }
+    .ring-in {
+      width: calc(100% - 22px);
+      height: calc(100% - 22px);
+      border-radius: 50%;
+      background: radial-gradient(circle at 30% 20%, #151c33, #070b17 75%);
+      display: grid;
+      place-items: center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.12);
+    }
+
+    .glow-ok { text-shadow: 0 0 24px rgba(52,211,153,0.6); }
+    .glow-bad { text-shadow: 0 0 24px rgba(248,113,113,0.55); }
+
+    .safe-top { padding-top: max(env(safe-area-inset-top), 1.25rem); }
+    .safe-bottom { padding-bottom: max(env(safe-area-inset-bottom), 1.25rem); }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="ambient" aria-hidden="true">
+    <div class="blob blob-a"></div>
+    <div class="blob blob-b"></div>
+    <div class="blob blob-c"></div>
+  </div>
+
+  <main class="min-h-[100dvh] mx-auto w-full max-w-xl px-5 safe-top safe-bottom flex flex-col">
+
+    <!-- Header -->
+    <header class="pt-2 pb-5">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300/80">Стоматологія · 1 курс</p>
+          <h1 class="mt-1 text-2xl font-bold tracking-tight">Вступ до фаху</h1>
+        </div>
+        <div class="glass-inner px-4 py-2 flex items-center gap-2 text-sm font-semibold">
+          <i class="fa-solid fa-star text-amber-300"></i>
+          <span>Бали: <span id="score-live">0</span></span>
+        </div>
+      </div>
+
+      <div class="mt-6">
+        <div class="flex items-center justify-between text-sm text-white/60 mb-2">
+          <span id="counter">Питання 1 з 20</span>
+          <span id="percent-live">0%</span>
+        </div>
+        <div class="bar-track">
+          <div id="bar" class="bar-fill"></div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Quiz screen -->
+    <section id="screen-quiz" class="flex-1 flex flex-col gap-5 pb-4">
+      <div class="glass p-6 sm:p-8 fade-up" id="question-card">
+        <div class="flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-violet-300/80 mb-4">
+          <i class="fa-solid fa-tooth"></i>
+          <span id="topic">Тема</span>
+        </div>
+        <h2 id="question" class="text-[1.45rem] sm:text-[1.6rem] leading-snug font-semibold tracking-tight"></h2>
+      </div>
+
+      <div id="options" class="flex flex-col gap-3"></div>
+
+      <div id="feedback" class="glass-inner p-5 expl hidden-state hidden">
+        <div class="flex items-start gap-3">
+          <i id="fb-icon" class="text-2xl mt-0.5"></i>
+          <div class="min-w-0">
+            <p id="fb-title" class="text-lg font-bold mb-1"></p>
+            <p id="fb-text" class="text-[0.98rem] leading-relaxed text-white/80"></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-auto pt-2">
+        <button id="next" class="btn-primary flex items-center justify-center gap-3" disabled>
+          <span id="next-label">Наступне питання</span>
+          <i class="fa-solid fa-arrow-right"></i>
+        </button>
+        <p class="text-center text-xs text-white/35 mt-4 px-4 leading-relaxed">
+          Варіанти та пояснення складено за стандартними підручниками. Для фінальної перевірки звіряйтеся з лекціями кафедри.
+        </p>
+      </div>
+    </section>
+
+    <!-- Result screen -->
+    <section id="screen-result" class="hidden flex-1 flex flex-col justify-center gap-6 py-6">
+      <div class="glass p-7 sm:p-9 text-center fade-up">
+        <p class="text-xs font-semibold uppercase tracking-[0.18em] text-sky-300/80">Підсумок</p>
+        <h2 class="mt-2 text-3xl font-bold tracking-tight">Результат тесту</h2>
+
+        <div class="mt-8">
+          <div id="ring" class="ring">
+            <div class="ring-in">
+              <div>
+                <div id="result-percent" class="text-6xl font-bold tracking-tight">0%</div>
+                <div class="text-sm text-white/55 mt-1">правильних</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3 mt-8">
+          <div class="glass-inner p-4">
+            <p class="text-xs uppercase tracking-widest text-white/50">Бали</p>
+            <p class="mt-1 text-2xl font-bold"><span id="result-points">0</span><span class="text-white/40 text-base"> / 20</span></p>
+          </div>
+          <div class="glass-inner p-4">
+            <p class="text-xs uppercase tracking-widest text-white/50">Помилок</p>
+            <p class="mt-1 text-2xl font-bold"><span id="result-wrong">0</span></p>
+          </div>
+        </div>
+
+        <p id="result-message" class="mt-7 text-lg leading-relaxed text-white/85"></p>
+      </div>
+
+      <button id="restart" class="btn-primary flex items-center justify-center gap-3">
+        <i class="fa-solid fa-rotate-left"></i>
+        <span>Пройти знову</span>
+      </button>
+    </section>
+  </main>
+
+<script>
+/* ==========================================================
+   ДАНІ: 20 питань до заліку з «Вступ до фаху»
+   o  — варіанти відповідей
+   a  — індекс правильної відповіді у масиві o
+   e  — пояснення клінічної норми
+   ========================================================== */
+const QUESTIONS = [
+  {
+    t: "Будова зубів",
+    q: "Яка будова тимчасових (молочних) зубів є характерною?",
+    o: [
+      "Всього 32 зуби; емаль товща, ніж у постійних",
+      "Всього 20 зубів; емаль і дентин тонші, пульпова камера відносно велика",
+      "Всього 28 зубів; коронки довші за постійні",
+      "Всього 20 зубів; корені відсутні"
+    ],
+    a: 1,
+    e: "У тимчасовому прикусі 20 зубів (по 10 на кожній щелепі). Емаль і дентин тонші, ніж у постійних, тому карієс поширюється швидко. Пульпова камера відносно велика, а корені тонші й розходяться в сторони."
+  },
+  {
+    t: "Будова зубів",
+    q: "Скільки постійних зубів і з яких груп складається повний постійний прикус?",
+    o: [
+      "28: 8 різців, 4 ікла, 8 премолярів, 8 молярів",
+      "32: 8 різців, 4 ікла, 8 премолярів, 12 молярів",
+      "32: 4 різці, 4 ікла, 12 премолярів, 12 молярів",
+      "30: 8 різців, 4 ікла, 6 премолярів, 12 молярів"
+    ],
+    a: 1,
+    e: "Постійних зубів 32: 8 різців, 4 ікла, 8 премолярів і 12 молярів. До молярів входять треті молярі («зуби мудрості»). Без них постійних зубів 28."
+  },
+  {
+    t: "Прорізування",
+    q: "Які загальні терміни прорізування тимчасових і постійних зубів?",
+    o: [
+      "Тимчасові — з 6 міс. до 2,5–3 років; постійні — починаючи з 6 років",
+      "Тимчасові — з 1 до 5 років; постійні — з 12 років",
+      "Тимчасові — з 3 міс. до 1 року; постійні — з 3 років",
+      "Тимчасові — з 2 до 4 років; постійні — з 10 років"
+    ],
+    a: 0,
+    e: "Тимчасові зуби з’являються приблизно з 6 місяців і завершують прорізування до 2,5–3 років. Постійні починають прорізуватися з першими молярами у 6 років, а основна частина прорізується до 12–13 років. Треті молярі з’являються пізніше, часто після 17 років."
+  },
+  {
+    t: "Прорізування",
+    q: "Яка правильна послідовність прорізування тимчасових зубів?",
+    o: [
+      "Ікла → другі молари → різці → перші молари",
+      "Різці → перші молари → ікла → другі молари",
+      "Перші молари → різці → другі молари → ікла",
+      "Різці → ікла → другі молари → перші молари"
+    ],
+    a: 1,
+    e: "Спочатку прорізуються центральні та бокові різці (приблизно з 6 міс. до 1 року), потім перші молари (близько 13–19 міс.), далі ікла (близько 16–22 міс.) і наостанок другі молари (близько 20–30 міс.)."
+  },
+  {
+    t: "Анатомія зубів",
+    q: "Які анатомічні відмінності тимчасових зубів від постійних?",
+    o: [
+      "Більші розміри, темніша емаль, довші корені, вужча пульпова камера",
+      "Менші розміри, світліша емаль, короткі товсті корені, мала пульпова камера",
+      "Менші розміри, світліша й тонша емаль, більша пульпова камера, тонші корені, що розходяться",
+      "Однакові розміри, тонкі коронки і високі шийки"
+    ],
+    a: 2,
+    e: "Тимчасові зуби менші й світліші, мають тонший шар емалі та більшу пульпову камеру. Корені тонші й довші відносно коронки та розходяться, що полегшує заміну постійними зубами. Шийка тимчасових зубів виражена сильніше."
+  },
+  {
+    t: "Формула зубів",
+    q: "Які позначення використовують клінічна (Палмера) та міжнародна (FDI) системи?",
+    o: [
+      "Клінічна: символ квадранта і номер від центру; міжнародна: двозначні числа 11–48",
+      "Клінічна: двозначні числа 11–48; міжнародна: символ квадранта і номер",
+      "Обидві системи використовують лише числа від 1 до 32",
+      "Клінічна: числа 1–32; міжнародна: літери від A до T"
+    ],
+    a: 0,
+    e: "Клінічна (Палмера) система позначає квадрант символом (┘, └, ┌, ┐) і номер зуба від центру (1–8). Міжнародна FDI система використовує двозначне число: перша цифра — квадрант (1–4 для постійних, 5–8 для тимчасових), друга — порядковий номер (наприклад, 16 або 55)."
+  },
+  {
+    t: "Фізіологія",
+    q: "Що таке фізіологічна стертість тимчасових зубів?",
+    o: [
+      "Патологічне руйнування емалі внаслідок карієсу",
+      "Природне стирання жувальних поверхонь, яке є нормою і не потребує лікування",
+      "Клиноподібний дефект шийки зуба",
+      "Гіперчутливість дентину після прорізування"
+    ],
+    a: 1,
+    e: "Фізіологічна стертість — природне стирання жувальних поверхонь у процесі функціонування. Вона сприяє формуванню щільних контактів між зубами та не потребує лікування. Патологічна стертість, наприклад через бруксизм, уже є відхиленням від норми."
+  },
+  {
+    t: "Анамнез",
+    q: "Які розділи входять до схеми збору анамнезу життя та захворювання дитини?",
+    o: [
+      "Лише скарги та вік дитини",
+      "Скарги, анамнез захворювання, анамнез життя: вагітність і пологи матері, вигодовування, перенесені хвороби, алергія",
+      "Тільки шкідливі звички та заняття спортом",
+      "Лише перелік стоматологічних втручань"
+    ],
+    a: 1,
+    e: "Схема включає паспортні дані, скарги, анамнез захворювання та анамнез життя. Для дитини важливі вагітність і пологи матері, вигодовування, перенесені захворювання, алергологічний і лікарський анамнез, а також фізичний і психічний розвиток, харчування та гігієна."
+  },
+  {
+    t: "Анамнез",
+    q: "Який акцент має анамнез дорослої людини порівняно з дитячим?",
+    o: [
+      "Анамнез життя не збирають",
+      "Шкідливі звички, професійні шкідливості, соматичні захворювання, прийом ліків і алергія",
+      "Дані збирають лише від родичів",
+      "Відомості про вагітність матері"
+    ],
+    a: 1,
+    e: "Для дорослих збирають паспортні дані, скарги, анамнез захворювання та анамнез життя. Особливо важливі соматичні захворювання, алергічні реакції, прийом препаратів (зокрема антикоагулянтів і бісфосфонатів), шкідливі звички, професійні шкідливості, гігієна порожнини рота та для жінок — вагітність."
+  },
+  {
+    t: "Обстеження",
+    q: "Що входить до зовнішнього огляду обличчя?",
+    o: [
+      "Лише визначення кольору шкіри",
+      "Тільки огляд губ і кутів рота",
+      "Оцінка симетрії, профілю й пропорцій обличчя, стану шкіри та м’яких тканин, пальпація регіонарних лімфовузлів і визначення типу прикусу",
+      "Перкусія верхніх різців"
+    ],
+    a: 2,
+    e: "Огляд починають з оцінки симетрії, пропорцій і профілю обличчя, стану шкіри та м’яких тканин. Далі пальпують регіонарні лімфатичні вузли (підщелепні, підборідні, привушні, шийні). Орієнтовний тип прикусу оцінюють за співвідношенням губ і нижньої третини обличчя."
+  },
+  {
+    t: "Обстеження",
+    q: "Які методи входять до обстеження порожнини рота?",
+    o: [
+      "Огляд, перкусія, рентгенографія",
+      "Огляд, зондування, перкусія, пальпація",
+      "Пальпація, термодіагностика, фарбування",
+      "Зондування, електроодонтодіагностика"
+    ],
+    a: 1,
+    e: "Огляд проводять дзеркалом у денному світлі. Зондування виявляє карієс, кишені та шорсткості. Перкусія (легке постукування) оцінює стан періодонта, пальпація — слизову й м’які тканини. Клінічно зазвичай починають з огляду, далі пальпація, перкусія і зондування."
+  },
+  {
+    t: "Інструментарій",
+    q: "Як класифікують стоматологічні інструменти?",
+    o: [
+      "За розміром: великі, середні, малі",
+      "Оглядові, для препарування, для пломбування (і допоміжні)",
+      "За матеріалом: сталеві та пластикові",
+      "За кольором ручок"
+    ],
+    a: 1,
+    e: "Оглядові інструменти: дзеркало, зонд, пінцет. Для препарування: бори, екскаватори, ложки, долота. Для пломбування: гладилки, конденсори, шпателі, щипці для матриць. Окремо виділяють допоміжні інструменти."
+  },
+  {
+    t: "Інструментарій",
+    q: "Які бувають стоматологічні наконечники та бори?",
+    o: [
+      "Турбінні (швидкісні), контрокутні (механічні), прямі; бори: стальні, твердосплавні, алмазні, полірувальні",
+      "Лише турбінні; бори — тільки стальні",
+      "Ручні та електричні ложки; бори — пластикові",
+      "Пневматичні та лазерні; бори — керамічні"
+    ],
+    a: 0,
+    e: "Турбінні наконечники працюють на високій швидкості з водяним охолодженням. Контрокутні й прямі — механічні, на низькій швидкості. Стальні бори використовують для дентину, твердосплавні — для формування порожнин, алмазні — для препарування емалі та керамики, полірувальні — для полірування."
+  },
+  {
+    t: "Стерилізація",
+    q: "Яка правильна послідовність етапів обробки стоматологічного інструментарію?",
+    o: [
+      "Стерилізація → дезінфекція → передстерилізаційне очищення",
+      "Дезінфекція → передстерилізаційне очищення → висушування → стерилізація",
+      "Передстерилізаційне очищення → стерилізація → дезінфекція",
+      "Стерилізація → висушування → дезінфекція"
+    ],
+    a: 1,
+    e: "Спочатку дезінфекція (знезараження), далі передстерилізаційне очищення (видалення білків, крові, жиру), висушування, стерилізація і зберігання у стерильній упаковці. Брудні інструменти стерилізувати не можна, бо залишки органіки захищають мікроорганізми."
+  },
+  {
+    t: "Стерилізація",
+    q: "Що виявляють азопірамова та фенолфталеїнова проби?",
+    o: [
+      "Залишки крові на інструментах після очищення, тобто якість передстерилізаційного очищення",
+      "Стерильність інструментів після автоклавування",
+      "Концентрацію дезінфектанту в розчині",
+      "Температуру в сухожаровій шафі"
+    ],
+    a: 0,
+    e: "Ці проби контролюють якість передстерилізаційного очищення: вони реагують на залишки крові. Позитивна реакція дає забарвлення (синьо-зелене — азопірамова, малиново-рожеве — фенолфталеїнова), і очищення треба повторити. Самі проби не доводять стерильність."
+  },
+  {
+    t: "Стерилізація",
+    q: "Які сучасні методи стерилізації застосовують у стоматології?",
+    o: [
+      "Кип’ятіння протягом 5 хвилин у воді",
+      "Автоклавування (водяна пара під тиском), сухожарова шафа, хімічна стерилізація",
+      "Протирання спиртом 70% як стерилізація",
+      "Миття в пральній машині"
+    ],
+    a: 1,
+    e: "Найпоширеніше — автоклавування (пара під тиском, близько 121–134 °C). Сухожарові шафи використовують сухе гаряче повітря (близько 160–180 °C) для металевих інструментів. Хімічна (холодна) стерилізація застосовується для термолабільних виробів. Кип’ятіння і спирт — це дезінфекція, а не стерилізація."
+  },
+  {
+    t: "Прикуси",
+    q: "Які прикуси в тимчасовому прикусі вважаються фізіологічними?",
+    o: [
+      "Глибокий, відкритий, перехресний",
+      "Прямий, з мезіальним уступом, з дистальним уступом",
+      "Прогенічний і прогнатичний",
+      "Лише ортогнатичний без винятків"
+    ],
+    a: 1,
+    e: "У тимчасовому прикусі фізіологічними є прямий прикус (без перекриття), прикус із мезіальним уступом (ступенькою вперед) і з дистальним уступом (ступенькою назад). Дистальний уступ часто є нормальним шляхом для формування прикусу постійних зубів. Ортогнатичний прикус — норма для постійного прикусу."
+  },
+  {
+    t: "Прикуси",
+    q: "Які види патологічних прикусів існують?",
+    o: [
+      "Ортогнатичний, прямий, з мезіальним уступом",
+      "Глибокий, відкритий, перехресний, прогнатія, прогенія",
+      "Тільки глибокий прикус",
+      "Фізіологічний уступ і пряма посмішка"
+    ],
+    a: 1,
+    e: "До патологічних належать глибокий прикус (перекриття понад третину коронок нижніх різців), відкритий, перехресний, прогнатія (випередження верхньої щелепи) і прогенія (випередження нижньої). Також розрізняють дистальний (клас II) і мезіальний (клас III) прикуси за Ешем."
+  },
+  {
+    t: "Матеріали",
+    q: "Як класифікують стоматологічні матеріали?",
+    o: [
+      "За кольором і ціною",
+      "За призначенням (пломбувальні, відбиткові, ортопедичні тощо) та за складом (металеві, неметалеві)",
+      "Тільки за походженням: природні чи штучні",
+      "За розміром упаковки"
+    ],
+    a: 1,
+    e: "Матеріали поділяють за призначенням (профілактичні, пломбувальні, відбиткові, ізолювальні, протезні) та за хімічною природою. Металеві — це сплави. Неметалеві бувають полімерні (пластмаси, композити) та неорганічні (кераміка, цементи)."
+  },
+  {
+    t: "Гігієна",
+    q: "Як класифікують зубні пасти?",
+    o: [
+      "За смаком і кольором",
+      "Дитячі та дорослі, без поділу на види",
+      "Гігієнічні, лікувально-профілактичні та лікувальні за показаннями",
+      "За ціною і упаковкою"
+    ],
+    a: 2,
+    e: "Гігієнічні пасти призначені для щоденного очищення. Лікувально-профілактичні містять фториди, кальцій або гідроксиапатит і зміцнюють емаль, знижуючи ризик карієсу. Лікувальні пасти містять спеціальні компоненти: проти гіперчутливості, протизапальні, відбілювальні чи проти зубного каменю."
+  }
+];
+
+/* ==========================================================
+   СТАН І ЕЛЕМЕНТИ
+   ========================================================== */
+const TOTAL = QUESTIONS.length;
+const $ = (id) => document.getElementById(id);
+
+const el = {
+  quiz: $("screen-quiz"),
+  result: $("screen-result"),
+  question: $("question"),
+  topic: $("topic"),
+  card: $("question-card"),
+  options: $("options"),
+  feedback: $("feedback"),
+  fbIcon: $("fb-icon"),
+  fbTitle: $("fb-title"),
+  fbText: $("fb-text"),
+  next: $("next"),
+  nextLabel: $("next-label"),
+  bar: $("bar"),
+  counter: $("counter"),
+  percentLive: $("percent-live"),
+  scoreLive: $("score-live"),
+  restart: $("restart")
+};
+
+let order = [];      // порядок питань
+let perm = [];       // перестановка варіантів поточного питання
+let correctPos = 0;  // позиція правильної відповіді після перестановки
+let idx = 0;         // поточний індекс
+let score = 0;
+let answered = false;
+
+/* Фішер–Єйтс */
+function shuffle(arr) {
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+const LETTERS = ["А", "Б", "В", "Г", "Д", "Е"];
+
+/* ==========================================================
+   ЛОГІКА ТЕСТУ
+   ========================================================== */
+function startQuiz() {
+  order = shuffle([...Array(TOTAL).keys()]);
+  idx = 0;
+  score = 0;
+  el.result.classList.add("hidden");
+  el.quiz.classList.remove("hidden");
+  el.quiz.style.display = "";
+  renderQuestion();
+  updateProgress();
+}
+
+function renderQuestion() {
+  answered = false;
+  const item = QUESTIONS[order[idx]];
+
+  // Перемішуємо варіанти, щоб правильна відповідь не була завжди на одному місці
+  perm = shuffle([...item.o.keys()]);
+  correctPos = perm.indexOf(item.a);
+
+  // Текст питання з м’якою появою
+  el.topic.textContent = item.t;
+  el.question.textContent = item.q;
+  el.card.classList.remove("fade-up");
+  void el.card.offsetWidth;
+  el.card.classList.add("fade-up");
+
+  // Варіанти
+  el.options.innerHTML = "";
+  perm.forEach((originalIndex, pos) => {
+    const btn = document.createElement("button");
+    btn.className = "opt glass-inner fade-up";
+    btn.style.animationDelay = `${pos * 60}ms`;
+    btn.type = "button";
+    btn.dataset.pos = pos;
+
+    const letter = document.createElement("span");
+    letter.className = "letter";
+    letter.textContent = LETTERS[pos] || (pos + 1);
+
+    const text = document.createElement("span");
+    text.textContent = item.o[originalIndex];
+
+    btn.append(letter, text);
+    btn.addEventListener("click", () => choose(pos));
+    el.options.appendChild(btn);
+  });
+
+  // Скидання фідбеку та кнопки
+  el.feedback.classList.add("hidden", "hidden-state");
+  el.feedback.classList.remove("glow-ok", "glow-bad");
+  el.next.disabled = true;
+  el.nextLabel.textContent = idx === TOTAL - 1 ? "Завершити тест" : "Наступне питання";
+  el.next.querySelector("i").className = idx === TOTAL - 1
+    ? "fa-solid fa-flag-checkered"
+    : "fa-solid fa-arrow-right";
+
+  el.counter.textContent = `Питання ${idx + 1} з ${TOTAL}`;
+}
+
+function choose(pos) {
+  if (answered) return;
+  answered = true;
+
+  const item = QUESTIONS[order[idx]];
+  const buttons = [...el.options.querySelectorAll(".opt")];
+  const isCorrect = pos === correctPos;
+
+  if (isCorrect) score++;
+
+  buttons.forEach((b, i) => {
+    b.disabled = true;
+    if (i === correctPos) b.classList.add("is-correct");
+    else if (i === pos) b.classList.add("is-wrong");
+    else b.classList.add("is-dim");
+  });
+
+  // Фідбек
+  el.feedback.classList.remove("hidden");
+  requestAnimationFrame(() => {
+    el.feedback.classList.remove("hidden-state");
+  });
+
+  if (isCorrect) {
+    el.feedback.classList.add("glow-ok");
+    el.fbIcon.className = "fa-solid fa-circle-check text-emerald-400 text-2xl mt-0.5 glow-ok";
+    el.fbTitle.textContent = "Правильно!";
+    el.fbTitle.className = "text-lg font-bold mb-1 text-emerald-300";
+  } else {
+    el.feedback.classList.add("glow-bad");
+    el.fbIcon.className = "fa-solid fa-circle-xmark text-rose-400 text-2xl mt-0.5 glow-bad";
+    el.fbTitle.textContent = "Неправильно";
+    el.fbTitle.className = "text-lg font-bold mb-1 text-rose-300";
+  }
+  el.fbText.textContent = item.e;
+
+  el.next.disabled = false;
+  updateScore();
+  setTimeout(() => {
+    el.feedback.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, 250);
+}
+
+function next() {
+  if (!answered) return;
+  if (idx < TOTAL - 1) {
+    idx++;
+    renderQuestion();
+    updateProgress();
+  } else {
+    showResult();
+  }
+}
+
+function updateScore() {
+  el.scoreLive.textContent = score;
+}
+
+function updateProgress() {
+  const done = idx + (answered ? 1 : 0);
+  const pct = Math.round((done / TOTAL) * 100);
+  el.bar.style.width = pct + "%";
+  el.percentLive.textContent = Math.round((score / TOTAL) * 100) + "%";
+}
+
+function showResult() {
+  const percent = Math.round((score / TOTAL) * 100);
+  const wrong = TOTAL - score;
+
+  el.quiz.classList.add("hidden");
+  el.result.classList.remove("hidden");
+  el.result.classList.remove("fade-in");
+  void el.result.offsetWidth;
+  el.result.classList.add("fade-in");
+
+  $("result-percent").textContent = percent + "%";
+  $("result-points").textContent = score;
+  $("result-wrong").textContent = wrong;
+
+  let msg;
+  if (percent >= 90) msg = "Відмінно! Матеріал засвоєно впевнено, ви готові до заліку.";
+  else if (percent >= 75) msg = "Дуже добре. Залишилося трохи підтягнути окремі теми.";
+  else if (percent >= 60) msg = "Непогано. Повторіть питання, де були помилки, і спробуйте знову.";
+  else msg = "Варто ще раз опрацювати конспект і пройти тест повторно.";
+  $("result-message").textContent = msg;
+
+  const ring = $("ring");
+  ring.style.setProperty("--p", 0);
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => ring.style.setProperty("--p", percent));
+  });
+
+  el.bar.style.width = "100%";
+}
+
+/* ==========================================================
+   ПОДІЇ
+   ========================================================== */
+el.next.addEventListener("click", next);
+el.restart.addEventListener("click", () => {
+  startQuiz();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+});
+
+document.addEventListener("keydown", (e) => {
+  if (el.result.classList.contains("hidden") === false) return;
+  if (e.key === "Enter" && !el.next.disabled) next();
+});
+
+startQuiz();
+</script>
+</body>
+</html>
